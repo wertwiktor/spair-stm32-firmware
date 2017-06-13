@@ -86,7 +86,7 @@ void UartCommunicationInterface::HardwareInit()
 	DMA_USART_TX->CR = DMA_SxCR_CHSEL_2 | DMA_SxCR_MINC | DMA_SxCR_DIR_1;
 	DMA_USART_TX->PAR = (uint32_t) &(USART2->DR);
 
-	// Clear status bits (w tym flag b³êdów) kontrolera DMA1
+	// Clear status bits (w tym flag bï¿½ï¿½dï¿½w) kontrolera DMA1
 	DMA1->HIFCR = DMA_HIFCR_CTCIF5 | DMA_HIFCR_CHTIF5 | DMA_HIFCR_CTEIF5 | DMA_HIFCR_CDMEIF5 | DMA_HIFCR_CFEIF5;
 
 	// Start DMA transmission
@@ -139,10 +139,10 @@ void UartCommunicationInterface::Send(uint16_t size)
 bool UartCommunicationInterface::CheckFrame(void)
 {
 	auto crc1 = CRC16(rxFrame, rxFrameSize-1);
-	auto crc2 = 0;
+	auto crc2 = rxFrame[rxFrameSize-1] | (rxFrame[rxFrameSize]<<8);
 
 	// TO DO!!
-	crc2 = crc1;
+	//crc2 = crc1;
 	if (crc1 == crc2)
 	{
 		return true;

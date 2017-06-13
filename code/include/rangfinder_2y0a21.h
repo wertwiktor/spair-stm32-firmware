@@ -12,7 +12,7 @@ class Rangfinder2Y0A21
 	const static uint16_t BUF_SIZE = 4096;
 
 	uint16_t dmaBuf[DMA_SIZE];
-	uint16_t sampleBuf[BUF_SIZE];
+
 
 	volatile uint16_t dmaIndexRead;
 	volatile uint16_t dmaPrevCounter;
@@ -25,7 +25,8 @@ class Rangfinder2Y0A21
 public:
 
 	bool isDataReady;
-
+	uint16_t sampleBuf[BUF_SIZE];
+	uint16_t lastDistance;
 	void Init()
 	{
 		HardwareInit();
@@ -52,6 +53,7 @@ public:
 			{
 				// Copy data from DMA buffer to another buffer
 				sampleBuf[sampleIndex++] = dmaBuf[dmaIndexRead++];
+				lastDistance=dmaBuf[dmaIndexRead];
 				sampleIndex &= BUF_SIZE-1;
 				dmaIndexRead &= DMA_SIZE-1;
 				counter++;
@@ -77,11 +79,12 @@ public:
 	void PeriodicUpdate()
 	{
 		pulses++;
-		if (pulses == 1)
+		if (pulses == 3)
 		{
-			// Start the recording stage
+			Record();
 		}
-		if (pulses == 2)
+
+		if (pulses == 10)
 		{
 			ReadBlock();
 			isDataReady = true;

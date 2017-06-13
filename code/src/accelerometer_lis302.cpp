@@ -12,10 +12,9 @@ void AccelerometerLIS302::Fsm(uint16_t data) {
 			// Check ready bit
 			if (data & ZYXDA_BIT)
 			{
-				fsmState = STATE_X_AXIS;
 				SPI_CS() = 0;
-				// Command to send
 				SPI1->DR = OUTX;
+				fsmState = STATE_X_AXIS;
 			}
 			else
 			{
@@ -25,11 +24,23 @@ void AccelerometerLIS302::Fsm(uint16_t data) {
 		break;
 
 		case STATE_X_AXIS:
-			rawDataX = data;
-			isDataReady = true;
-			// Complete measurement cycle
-			fsmState = STATE_IDLE;
-		break;
+				rawDataX = data;
+				SPI_CS() = 0;
+				SPI1->DR = OUTY;
+				fsmState = STATE_Y_AXIS;
+				break;
+		case STATE_Y_AXIS:
+				rawDataY = data;
+				SPI_CS() = 0;
+				SPI1->DR = OUTZ;
+				fsmState = STATE_Z_AXIS;
+				break;
+		case STATE_Z_AXIS:
+				rawDataZ = data;
+				isDataReady = true;
+				// Complete measurement cycle
+				fsmState = STATE_IDLE;
+				break;
 
 		default:
 		break;

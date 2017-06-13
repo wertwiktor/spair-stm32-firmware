@@ -11,7 +11,11 @@ struct CmdMaster
 
 struct CmdSlave
 {
-	uint16_t data1;
-	int16_t data2;
+	float data1;
+	float data2;
+	float data3;
+	float data4;
+	float data5;
+	float data6;
 };
 

@@ -84,7 +84,7 @@ public:
 		u16Data = SPI1->DR;
 		// Set accelerometer
 		u16Data = WriteReadBlock(WHO_AM_I) & 0xFF;
-		u16Data = WriteReadBlock(CTRL_REG1 + 0x47) & 0xFF;
+		u16Data = WriteReadBlock(CTRL_REG1 + 0xC7) & 0xFF; //0x47 100Hz - 0xC7 400Hz
 		// Allow for SPI interrupts
 		SPI1->CR2 |= SPI_CR2_RXNEIE;
 	}
@@ -102,14 +102,15 @@ public:
 	void ScaleData()
 	{
 		// TO DO: compute acc in m/s^2
-		accVal[0] = (float)rawDataX;
-		accVal[1] = (float)rawDataY;
-		accVal[2] = (float)rawDataZ;
+		accVal[0] = (float)rawDataX/64.0;
+		accVal[1] = (float)rawDataY/64.0;
+		accVal[2] = (float)rawDataZ/64.0;
 	}
 
 	void CalculateAngles()
 	{
-		angle[0] = angle[1] = 0;
+		angle[0] = atan2(-accVal[0], accVal[2]);
+		angle[1] = atan2(accVal[1], sqrt(accVal[0]*accVal[0] + accVal[2]*accVal[2]));
 	}
 };
 

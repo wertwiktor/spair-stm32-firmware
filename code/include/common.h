@@ -25,6 +25,8 @@ class App
 	float filterParams1[6] = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
 	Filter2Iir filter1;
+	Filter2Iir filter2;
+	Filter2Iir filter3;
 
 	// cykle w [ms]
 	volatile uint32_t mainClock;
@@ -38,7 +40,7 @@ public:
 	UartCommunicationInterface com;
 
 
-	App(): filter1(filterParams1)
+	App(): filter1(filterParams1), filter2(filterParams1), filter3(filterParams1)
 	{
 		mainClock = 0;
 		auxClock = 0;
@@ -69,7 +71,7 @@ public:
 		acc.Init();
 	    rang.Init();
 		com.Init();
-		//rang.Start();
+		rang.Start();
 
 	}
 
@@ -104,8 +106,13 @@ public:
 					com.GetUserData(&cmdM, sizeof(CmdMaster));
 
 					// prepare data to send
-					cmdS.data1 = cmdM.data1*5;
-					cmdS.data2 = acc.accVal[0];
+					//cmdS.data1 = cmdM.data1*5;
+					cmdS.data1 = acc.accVal[0];
+					cmdS.data2 = acc.accVal[1];
+					cmdS.data3 = acc.accVal[2];
+					cmdS.data4 = acc.angle[0];
+					cmdS.data5 = acc.angle[1];
+					cmdS.data6 = rang.lastDistance;
 
 					com.SendUserData(&cmdS, sizeof(CmdSlave));
 				}
@@ -114,18 +121,18 @@ public:
 
 			if(acc.isDataReady)
 			{
-				float out;
 				acc.ScaleData();
-				//out = filter1.CalculateOutput(acc.accVal[0]);
-				out = filter1.CalculateOutput(acc.accVal[0]);
-				//rec1.RecordCyclically(out);
+				acc.accVal[0] = filter1.CalculateOutput(acc.accVal[0]);
+				acc.accVal[1] = filter2.CalculateOutput(acc.accVal[1]);
+				acc.accVal[2] = filter3.CalculateOutput(acc.accVal[2]);
+				acc.CalculateAngles();
 				acc.isDataReady = false;
 			}
 
 			if(rang.isDataReady)
 			{
 				// Signal processing
-
+				rang.isDataReady = false;
 			}
 		}
 	}
